@@ -39,9 +39,11 @@ namespace CryptoPals.Modules
             byte[] raw_bytes = str.HexStringToBytes();
 
             string known_ret = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t";
-            if (raw_bytes.BytesToBase64String() == known_ret)
+            string result = raw_bytes.BytesToBase64String();
+
+            if (result == known_ret)
             {
-                return raw_bytes.BytesToBase64String();
+                return result;
             }
 
             return "Unsolved!";
@@ -49,7 +51,18 @@ namespace CryptoPals.Modules
 
         private static string Two()
         {
-            return "Unsolved";
+            string str = "1c0111001f010100061a024b53535009181c";
+            string xor = "686974207468652062756c6c277320657965";
+
+            string result = str.XOR(xor).StringToHex();
+            string known_ret = "746865206b696420646f6e277420706c6179";
+
+            if (result == known_ret)
+            {
+                return result;
+            }
+
+            return "Unsolved!";
         }
 
         private static string Three()
