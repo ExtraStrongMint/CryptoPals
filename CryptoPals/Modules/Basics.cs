@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CryptoPals.Properties;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,12 +69,49 @@ namespace CryptoPals.Modules
 
         private static string Three()
         {
-            return "Unsolved";
+            string str = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+            byte[] raw_bytes = str.HexStringToBytes();
+
+            Dictionary<string, double> candidates = new Dictionary<string, double>();
+
+            int[] ascii = Enumerable.Range('\x1', 127).ToArray();
+            for (int i = 0; i < ascii.Length; i++)
+            {
+                char c = (char)ascii[i];
+                string result = raw_bytes.XOR(Encoding.ASCII.GetBytes(new char[] { c }));
+                double cscore;
+                if (true == Utilities.FrequencyAnalysis(result, 1, 30, out cscore))
+                    candidates.Add(result, cscore);
+            }
+
+            // Highest scoring
+            return candidates.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
         }
 
         private static string Four()
         {
-            return "Unsolved";
+            string str = Resources.Set1_C4;
+            str = str.Replace("\r", string.Empty);
+            List<string> strings = str.Split('\n').ToList();
+
+            Dictionary<string, double> candidates = new Dictionary<string, double>();
+
+            foreach (string enc in strings)
+            {
+                byte[] raw_bytes = enc.HexStringToBytes();
+                int[] ascii = Enumerable.Range('\x1', 127).ToArray();
+
+                for (int i = 0; i < ascii.Length; i++)
+                {
+                    char c = (char)ascii[i];
+                    string result = raw_bytes.XOR(Encoding.ASCII.GetBytes(new char[] { c }));
+                    double cscore;
+                    if (true == Utilities.FrequencyAnalysis(result, 2, 35, out cscore))
+                        candidates.Add(result, cscore);
+                }
+            }
+
+            return candidates.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
         }
 
         private static string Five()

@@ -85,9 +85,63 @@ namespace CryptoPals
                     _ret += (char)(bytes[i] ^ xor[i]);
                 }
             }
+            else if (xor.Length == 1)
+            {
+                byte _xor = xor[0];
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    _ret += (char)(bytes[i] ^ _xor);
+                }
+            }
             else return null;
 
             return _ret;
+        }
+        #endregion
+
+        #region Miscellaneous
+        /// <summary>
+        /// Uses common words/characters to do VERY VERY basic and quick detection of a string.
+        /// Not to be relied upon for anything other than baaaasic character detection although we do check for some words
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="required_word_weight"></param>
+        /// <param name="required_char_percent"></param>
+        /// <returns></returns>
+        internal static bool FrequencyAnalysis(string value, int required_word_count, int required_char_percent, out double character_score)
+        {
+            char[] common_chars = { 'e', 'a', 'i', 'r', 't', 'o', 'n', 's', 'l', 'c' };
+            string[] common_words = { " a ", " an ", " it ", " of ", " the ", " i" , " you ", " we " };
+
+            char[] check_chars = value.ToLower().ToCharArray();
+
+            int chars = 0;
+            foreach (char c in check_chars)
+            {
+                foreach (char cx in common_chars)
+                {
+                    if (cx == c)
+                        chars++;
+                }
+            }
+
+            int words = 0;
+            foreach (string w in common_words)
+            {
+                if (value.Contains(w))
+                    words++;
+            }
+            if (words >= required_word_count)
+            {
+                double perc = (value.Length * ((double)required_char_percent / 100));
+                if (chars >= perc)
+                {
+                    character_score = chars;
+                    return true;
+                }
+            }
+            character_score = 0;
+            return false;
         }
         #endregion
     }
