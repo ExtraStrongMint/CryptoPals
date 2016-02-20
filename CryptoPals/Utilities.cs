@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CryptoPals
 {
-    public static class Utilities
+    internal static class Utilities
     {
         #region Generic Test Extensions
         internal static bool IsFull(this string value) { return !string.IsNullOrEmpty(value); }
@@ -50,6 +50,10 @@ namespace CryptoPals
         internal static string BytesToBase64String(this byte[] bytes)
         {
             return Convert.ToBase64String(bytes);
+        }
+        internal static byte[] Base64StringToBytes(this string base64)
+        {
+            return Convert.FromBase64String(base64);
         }
         #endregion
 
@@ -121,21 +125,35 @@ namespace CryptoPals
         /// <param name="required_word_weight"></param>
         /// <param name="required_char_percent"></param>
         /// <returns></returns>
-        internal static bool FrequencyAnalysis(string value, int required_word_count, int required_char_percent, out double character_score)
+        internal static bool FrequencyAnalysis(string value, int required_word_count, int required_char_percent, double min_percent_ALPHANUM, out double character_score)
         {
-            char[] common_chars = { 'e', 'a', 'i', 'r', 't', 'o', 'n', 's', 'l', 'c' };
+            char[] common_chars = { 'e', 'a', 'i', 'r', 't', 'o', 'n', 's', 'l', 'c', ' ' };
             string[] common_words = { " a ", " an ", " it ", " of ", " the ", " i" , " you ", " we " };
 
-            char[] check_chars = value.ToLower().ToCharArray();
+            char[] check_chars = value.ToCharArray();
 
             int chars = 0;
+            double language = 0;
             foreach (char c in check_chars)
             {
+                if (char.IsLetterOrDigit(c))
+                    language++;
+                if (char.IsWhiteSpace(c))
+                    language++;
+
                 foreach (char cx in common_chars)
                 {
-                    if (cx == c)
+                    if (cx == char.ToLower(c))
                         chars++;
                 }
+            }
+
+            double percentage_of_ALPHANUM = (language / check_chars.Length) * 100;
+
+            if (percentage_of_ALPHANUM < min_percent_ALPHANUM)
+            {
+                character_score = 0;
+                return false;
             }
 
             int words = 0;
@@ -156,6 +174,25 @@ namespace CryptoPals
             character_score = 0;
             return false;
         }
+        internal static double Hamming(uint x, uint y)
+        {
+            int distance = 0;
+            uint val = x ^ y;
+
+            while (val != 0)
+            {
+                distance++;
+                val &= val - 1;
+            }
+
+            return distance;
+        }
         #endregion
+    }
+
+    internal class Block
+    {
+        internal int ID { get; set; }
+        internal List<byte> Bytes { get; set; }
     }
 }

@@ -80,7 +80,7 @@ namespace CryptoPals.Modules
                 char c = (char)ascii[i];
                 string result = raw_bytes.XOR(Encoding.ASCII.GetBytes(new char[] { c }));
                 double cscore;
-                if (true == Utilities.FrequencyAnalysis(result, 1, 30, out cscore))
+                if (true == Utilities.FrequencyAnalysis(result, 1, 30, 70, out cscore))
                     candidates.Add(result, cscore);
             }
 
@@ -106,7 +106,7 @@ namespace CryptoPals.Modules
                     char c = (char)ascii[i];
                     string result = raw_bytes.XOR(Encoding.ASCII.GetBytes(new char[] { c }));
                     double cscore;
-                    if (true == Utilities.FrequencyAnalysis(result, 2, 35, out cscore))
+                    if (true == Utilities.FrequencyAnalysis(result, 2, 35, 70, out cscore))
                         candidates.Add(result, cscore);
                 }
             }
@@ -131,7 +131,111 @@ namespace CryptoPals.Modules
 
         private static string Six()
         {
-            return "Unsolved";
+            //byte[] str1 = Encoding.ASCII.GetBytes("this is a test");
+            //byte[] str2 = Encoding.ASCII.GetBytes("wokka wokka!!!");
+
+            byte[] bytes = Resources.Set1_C6.Base64StringToBytes();
+
+            Dictionary<int, double> results = new Dictionary<int, double>();
+
+            List<byte> first = new List<byte>();
+            List<byte> second = new List<byte>();
+
+            int _samples = 12;
+            double edit_distance;
+            for (int _ks = 2; _ks <= 40; _ks++) // keysize candidate
+            {
+                first.Clear(); second.Clear(); // clear lists
+
+                for (int i = 0; i < _ks * _samples; i++)
+                {
+                    first.Add(bytes[i]);
+                    second.Add(bytes[i + (_ks* _samples)]);
+                }
+
+                edit_distance = 0;
+                for (int i = 0; i < first.Count; i+=_ks)
+                {
+                    for (int j = 0; j < _ks; j++)
+                    {
+                        edit_distance += (Utilities.Hamming(first[i], second[i]) / _ks);
+                    }
+                }
+                results.Add(_ks, edit_distance);
+            }
+
+            int _keySize = results.Aggregate((x, y) => x.Value < y.Value ? x : y).Key;
+            int blockCount = bytes.Length / _keySize;
+
+            List<Block> blocks = new List<Block>();
+            for (int i = 0; i < _keySize; i++)
+            {
+                Block block = new Block();
+                block.ID = i;
+                block.Bytes = new List<byte>();
+                for (int x = i; x < bytes.Length; x+=_keySize)
+                {
+                    block.Bytes.Add(bytes[x]);
+                    Array.Clear(bytes, x, 1);
+                }
+                blocks.Add(block);
+            }
+
+            byte[] raw_bytes;
+            Dictionary<int, Dictionary<char, int>> histogram = new Dictionary<int, Dictionary<char, int>>();
+            Dictionary<char, int> tmp;
+            int iteration = 0;
+            foreach (Block block in blocks)
+            {
+                raw_bytes = block.Bytes.ToArray();
+
+                int[] ascii = Enumerable.Range('\x1', 127).ToArray();
+
+                for (int i = 0; i < ascii.Length; i++)
+                {
+                    char c = (char)ascii[i];
+                    string result = raw_bytes.XOR(Encoding.ASCII.GetBytes(new char[] { c }));
+
+                    char[] chars = result.ToCharArray();
+                    int lang_prob = 0;
+                    foreach (char ch in chars)
+                    {
+                        if (char.IsLetterOrDigit(ch))
+                            lang_prob++;
+                        if (char.IsWhiteSpace(ch))
+                            lang_prob++;
+                    }
+                    if (histogram.ContainsKey(iteration))
+                    {
+                        if (histogram[iteration].ContainsKey(c))
+                            histogram[iteration][c] = Math.Max(histogram[iteration][c], lang_prob);
+                        else
+                            histogram[iteration].Add(c, lang_prob);
+                    }
+                    else
+                    {
+                        tmp = new Dictionary<char, int>()
+                        {
+                            { c, lang_prob }
+                        };
+                        histogram.Add(iteration, tmp);
+                    }
+
+                }
+                iteration++;
+            }
+
+            char[] key = new char[] { };
+            Array.Resize(ref key, _keySize);
+
+            int p = 0;
+            foreach (Dictionary<char, int> xyz in histogram.Values)
+            {
+                key[p] = xyz.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
+                p++;
+            }
+
+            return Resources.Set1_C6.Base64StringToBytes().XOR(Encoding.ASCII.GetBytes(key));
         }
 
         private static string Seven()
