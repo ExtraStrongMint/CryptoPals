@@ -29,6 +29,12 @@ namespace CryptoPals
 
             return Encoding.ASCII.GetBytes(_ret.ToString());
         }
+
+        /// <summary>
+        /// Convert ascii string into hexadecimal
+        /// </summary>
+        /// <param name="ascii_string"></param>
+        /// <returns>hex string</returns>
         public static string StringToHex(this string ascii_string)
         {
             return BitConverter.ToString(Encoding.ASCII.GetBytes(ascii_string)).Replace("-", string.Empty).ToLower();
@@ -48,6 +54,12 @@ namespace CryptoPals
         #endregion
 
         #region XOR
+        /// <summary>
+        /// Overload for byte based xor.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="xor"></param>
+        /// <returns>ascii string</returns>
         public static string XOR(this string str, string xor)
         {
             byte[] _bytes = str.HexStringToBytes();
@@ -55,6 +67,13 @@ namespace CryptoPals
 
             return _bytes.XOR(_xor);
         }
+
+        /// <summary>
+        /// Take two byte arrays and XOR them
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="xor"></param>
+        /// <returns>ascii string</returns>
         public static string XOR(this byte[] bytes, byte[] xor)
         {
             string _ret = "";
