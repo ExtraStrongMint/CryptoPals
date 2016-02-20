@@ -9,7 +9,7 @@ namespace CryptoPals
     public static class Utilities
     {
         #region Generic Test Extensions
-        public static bool IsFull(this string value) { return !string.IsNullOrEmpty(value); }
+        internal static bool IsFull(this string value) { return !string.IsNullOrEmpty(value); }
         #endregion
 
         #region Byte Conversions
@@ -18,7 +18,7 @@ namespace CryptoPals
         /// </summary>
         /// <param name="hex_string"></param>
         /// <returns>byte array</returns>
-        public static byte[] HexStringToBytes(this string hex_string)
+        internal static byte[] HexStringToBytes(this string hex_string)
         {
             StringBuilder _ret = new StringBuilder();
             for (int i = 0; i < hex_string.Length; i += 2)
@@ -35,7 +35,7 @@ namespace CryptoPals
         /// </summary>
         /// <param name="ascii_string"></param>
         /// <returns>hex string</returns>
-        public static string StringToHex(this string ascii_string)
+        internal static string StringToHex(this string ascii_string)
         {
             return BitConverter.ToString(Encoding.ASCII.GetBytes(ascii_string)).Replace("-", string.Empty).ToLower();
         }
@@ -47,7 +47,7 @@ namespace CryptoPals
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns>base64 string</returns>
-        public static string BytesToBase64String(this byte[] bytes)
+        internal static string BytesToBase64String(this byte[] bytes)
         {
             return Convert.ToBase64String(bytes);
         }
@@ -60,7 +60,7 @@ namespace CryptoPals
         /// <param name="str"></param>
         /// <param name="xor"></param>
         /// <returns>ascii string</returns>
-        public static string XOR(this string str, string xor)
+        internal static string XOR(this string str, string xor)
         {
             byte[] _bytes = str.HexStringToBytes();
             byte[] _xor = xor.HexStringToBytes();
@@ -74,7 +74,7 @@ namespace CryptoPals
         /// <param name="bytes"></param>
         /// <param name="xor"></param>
         /// <returns>ascii string</returns>
-        public static string XOR(this byte[] bytes, byte[] xor)
+        internal static string XOR(this byte[] bytes, byte[] xor)
         {
             string _ret = "";
 
@@ -93,7 +93,20 @@ namespace CryptoPals
                     _ret += (char)(bytes[i] ^ _xor);
                 }
             }
-            else return null;
+            else if (bytes.Length > xor.Length)
+            {
+                int _loop_max = xor.Length;
+                int _loop = 0;
+                
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    if (_loop >= _loop_max)
+                        _loop = 0;
+                    _ret += (char)(bytes[i] ^ xor[_loop]);
+                    _loop++;
+                }
+            }
+            else throw new NotSupportedException("This action is not supported. param1 < param2");
 
             return _ret;
         }
