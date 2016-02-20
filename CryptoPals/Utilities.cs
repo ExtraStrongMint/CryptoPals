@@ -21,5 +21,12 @@ namespace CryptoPals
             return Encoding.ASCII.GetBytes(_ret.ToString());
         }
         #endregion
+
+        #region base64
+        public static string BytesToBase64String(this byte[] bytes)
+        {
+            return Convert.ToBase64String(bytes);
+        }
+        #endregion
     }
 }

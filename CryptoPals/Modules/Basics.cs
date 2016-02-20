@@ -35,42 +35,51 @@ namespace CryptoPals.Modules
 
         private static string One()
         {
-            throw new NotImplementedException();
+            string str = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d";
+            byte[] raw_bytes = str.HexStringToBytes();
+
+            string known_ret = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t";
+            if (raw_bytes.BytesToBase64String() == known_ret)
+            {
+                return raw_bytes.BytesToBase64String();
+            }
+
+            return "Unsolved!";
         }
 
         private static string Two()
         {
-            throw new NotImplementedException();
+            return "Unsolved";
         }
 
         private static string Three()
         {
-            throw new NotImplementedException();
+            return "Unsolved";
         }
 
         private static string Four()
         {
-            throw new NotImplementedException();
+            return "Unsolved";
         }
 
         private static string Five()
         {
-            throw new NotImplementedException();
+            return "Unsolved";
         }
 
         private static string Six()
         {
-            throw new NotImplementedException();
+            return "Unsolved";
         }
 
         private static string Seven()
         {
-            throw new NotImplementedException();
+            return "Unsolved";
         }
 
         private static string Eight()
         {
-            throw new NotImplementedException();
+            return "Unsolved";
         }
     }
 }
